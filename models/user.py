@@ -10,7 +10,9 @@ class User(db.Model):
     username:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     email:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     password:Mapped[str] = mapped_column(db.String(60), nullable=False)
-    role_id:Mapped[str] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
+    role_id:Mapped[int] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
+
+
 
     def __repr__(self):
         return f'<user {self.username}>'
@@ -24,6 +26,10 @@ class User(db.Model):
     @classmethod
     def get_user_by_email(cls,email):
         return cls.query.filter_by(email = email).first()
+    
+    @classmethod
+    def get_user_by_id(cls,id):
+        return cls.query.filter_by(user_id = id).first()
     
     @classmethod
     def get_user_by_username(cls,username):

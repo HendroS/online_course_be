@@ -12,7 +12,7 @@ load_dotenv()
 # initialize the app with the extension
 def create_app():
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DB_URI_ONLINECOURSE')
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('FLASK_DB_URI_ONLINECOURSE')
     app.config["JWT_SECRET_KEY"] = os.getenv('FLASK_JWT_SECRET_KEY')
     app.config["JWT_ALGORITHM"] = os.getenv('FLASK_JWT_ALGHORITHM')
     db.init_app(app)

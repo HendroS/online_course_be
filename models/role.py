@@ -10,3 +10,6 @@ class Role(db.Model):
     
     def __repr__(self):
         return f'<role {self.role_name}>'
+    
+    def get_by_id(cls,id):
+        return cls.query.filter_by(role_id=id).first()
