@@ -6,7 +6,14 @@ from helpers.utils import checkField
 
 def get(id):
     course=Course.get_course_by_id(id)
-    return course.as_dict(),200
+    result= course.as_dict()
+    result['prerequisites']=[pre.as_dict() for pre in course.prerequisites]
+    result['category']=course.category.category_name
+    result['enrolled_users']=[{'username':enroll.user.username,
+                               'status':'completed' if enroll.is_completed is True else 'uncompleted'
+                               }
+                               for enroll in course.enrolls]
+    return result,200
 
 def get_all():
     select= request.args.get('select','all')
@@ -16,7 +23,16 @@ def get_all():
         courses=Course.get_all_with_active_status(True)
     else :  
         courses=Course.get_all()
-    return {'courses':[course.as_dict() for course in courses]},200
+    # courses= [course.as_dict() for course in courses]
+    # courses= [course['prerequisites'] for course in courses]
+    result= []
+    for c in courses:
+        course= c.as_dict()
+        course['prerequisites']=[]
+        for p in c.prerequisites:
+            course['prerequisites'].append(p.course_name)
+        result.append(course)
+    return {'courses':result},200
 
 def create():
     data = request.get_json()
@@ -31,6 +47,20 @@ def create():
                     course_name = data.get("course_name"))
     if data.get('description') != None:
         course.description = data.get('description')
+    
+    if data.get('prerequisites')!=None:
+        if isinstance(data.get('prerequisites'), list):
+           for id in data.get('prerequisites'):
+               pre_course= Course.get_course_by_id(id)
+               if pre_course == None:
+                   return {'msg':f'course id {id} not valid.'},400
+               course.prerequisites.append(pre_course)
+        else:
+            pre_course= Course.get_course_by_id(id)
+            if pre_course == None:
+                return {'msg':f'course id {id} not valid.'},400
+            course.prerequisites.append(pre_course)
+        
     course.save()
     return course.as_dict(),201
 
@@ -58,6 +88,24 @@ def update(id):
             if exist_name != None:
                 return {'msg':'course_name already used'},400
             course.course_name = data.get('course_name')
+    
+    if data.get('prerequisites')!=None:
+        course.prerequisites=[]
+        if isinstance(data.get('prerequisites'), list):
+           for id in data.get('prerequisites'):
+               if id == course.course_id:
+                   return {'msg':f"Can not reference to itself"},400
+               pre_course= Course.get_course_by_id(id)
+               if pre_course == None:
+                   return {'msg':f'course id {id} not valid.'},400
+               course.prerequisites.append(pre_course)
+        else:
+            if data.get('prerequisites')== course.course_id:
+                return {'msg':f"Can not reference to itself"},400
+            pre_course= Course.get_course_by_id(data.get('prerequisites'))
+            if pre_course == None:
+                return {'msg':f'course id {id} not valid.'},400
+            course.prerequisites.append(pre_course)
     
     course.save()
     return {'msg':'update sucessfull',

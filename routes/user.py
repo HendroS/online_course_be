@@ -22,3 +22,8 @@ def user(id=None):
     if method=='PUT':
         result = userController.update(id)
         return result
+    
+@blueprint.route('/user/top',methods=['GET'])
+def getTopUserEnroll():
+    users = userController.getTopUserEnroll()
+    return users

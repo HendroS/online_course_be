@@ -4,7 +4,11 @@ from flask_jwt_extended import current_user
 
 def getAll():
     users= User.query.all()
-    return [{'username':user.username} for user in users],200
+    return [{'username':user.username,
+             'enrolls': [{'course':e.course.course_name,
+                          'status':'completed' if e.is_completed is True else 'uncompleted'
+                          } for e in user.enrolls]
+             } for user in users],200
 def get(id):
     user = User.get_user_by_id(id)
     user =user.as_dict()
@@ -44,3 +48,7 @@ def update(id):
     user.save()
 
     return user.as_dict()
+
+def getTopUserEnroll():
+    users= User.get_top_enrolled()
+    return {'users':[dict(user) for user in users]}

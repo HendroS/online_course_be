@@ -1,8 +1,8 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, text
 from . import db
 import bcrypt
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column,relationship
 
 class User(db.Model):
     __tablename__='users'
@@ -11,6 +11,8 @@ class User(db.Model):
     email:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     password:Mapped[str] = mapped_column(db.String(60), nullable=False)
     role_id:Mapped[int] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
+
+    enrolls= relationship("Enrollment",backref='user',lazy=True)
 
 
 
@@ -49,4 +51,19 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def get_top_enrolled(cls,numbers=5):
+        q=text(
+            f"SELECT t.user_id,u.username,t.qty \
+            from (SELECT e.user_id , COUNT(e.user_id) qty  FROM enrollment e\
+               GROUP BY e.user_id) t\
+               JOIN users u ON u.user_id = t.user_id\
+               ORDER BY qty\
+                LIMIT {numbers}"
+               )     
+
+        result= db.engine.connect().execute(q).mappings().all()
+        print(result)
+        return result
     

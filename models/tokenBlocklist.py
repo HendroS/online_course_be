@@ -6,7 +6,7 @@ class TokenBlocklist(db.Model):
     __tablename__='token_blocklist'
     id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
     jti:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow())
 
     def __repr__(self):
         return f'<Blocklist {self.jti}>'

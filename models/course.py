@@ -1,6 +1,12 @@
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
+
+prerequisites = db.Table('prerequisites',
+    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True),
+    db.Column('prerequisite_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True)
+)
+
 
 class Course(db.Model):
     __tablename__='courses'
@@ -9,6 +15,14 @@ class Course(db.Model):
     course_name:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
     description:Mapped[str] = mapped_column(db.String, nullable=True)
     is_active:Mapped[str]= mapped_column(db.Boolean,nullable=False,default=True)
+
+    prerequisites = relationship('Course', 
+                                secondary = prerequisites, 
+                                primaryjoin = (prerequisites.c.course_id == course_id),
+                                secondaryjoin = (prerequisites.c.prerequisite_id == course_id),
+                                backref = 'needed_on'
+                                )
+    enrolls= relationship("Enrollment",backref='course',lazy=True)
     
     
     def __repr__(self):
