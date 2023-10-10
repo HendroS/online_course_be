@@ -59,7 +59,7 @@ class User(db.Model):
             from (SELECT e.user_id , COUNT(e.user_id) qty  FROM enrollment e\
                GROUP BY e.user_id) t\
                JOIN users u ON u.user_id = t.user_id\
-               ORDER BY qty\
+               ORDER BY qty DESC\
                 LIMIT {numbers}"
                )     
 

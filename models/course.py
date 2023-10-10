@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 
@@ -54,4 +54,19 @@ class Course(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def get_top_favorite(cls,numbers=5):
+        q=text(
+            f"SELECT c.course_id,c.course_name,t.qty \
+            from (SELECT e.course_id , COUNT(e.course_id) qty  FROM enrollment e\
+               GROUP BY e.course_id) t\
+               JOIN courses c ON c.course_id = t.course_id\
+               ORDER BY qty DESC\
+                LIMIT {numbers}"
+               )     
+
+        result= db.engine.connect().execute(q).mappings().all()
+        # print(result)
+        return result
     

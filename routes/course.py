@@ -24,5 +24,5 @@ def switch_active(id):
 
 @blueprint.route('/course/top',methods=["GET"])
 def top_enrollment():
-    enrolls = enrollmentController.getTopEnrollments()
+    enrolls = courseController.getTopCourses()
     return enrolls

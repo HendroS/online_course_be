@@ -10,8 +10,11 @@ def getAll():
                           } for e in user.enrolls]
              } for user in users],200
 def get(id):
-    user = User.get_user_by_id(id)
-    user =user.as_dict()
+    result = User.get_user_by_id(id)
+   
+    user =result.as_dict()
+    # user['enrolls']=[e.enrolls.]
+    user['enrolls']=[e.course.course_name for e in result.enrolls]
     user.pop('password')
     return user
 

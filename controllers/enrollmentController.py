@@ -76,7 +76,3 @@ def update(course_id):
     enroll.save()
     return {'msg':'Completed enrollment success'},200
 
-
-def getTopEnrollments(numbers=5):
-    enrolls= Enrollment.get_top_favorite(numbers)
-    return {'top_':[dict(c) for c in enrolls]}

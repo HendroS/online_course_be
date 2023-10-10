@@ -112,9 +112,15 @@ def update(id):
             'data':course.as_dict()
             },200
 
+
+
 def switch_active(id):
     course = Course.get_course_by_id(id)
     course.is_active = not course.is_active
     course.save()
     return course.as_dict()
     # return {'msg': f'active status switched from {not course.is_active} to {course.is_active}. '},200
+
+def getTopCourses(numbers=5):
+    enrolls= Course.get_top_favorite(numbers)
+    return {'top_':[dict(c) for c in enrolls]}
