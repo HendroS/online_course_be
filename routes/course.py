@@ -1,5 +1,5 @@
 from . import blueprint
-from controllers import courseController, enrollmentController
+from controllers import courseController
 from flask_jwt_extended import jwt_required,get_jwt,current_user
 from flask import request
 
@@ -26,3 +26,16 @@ def switch_active(id):
 def top_enrollment():
     enrolls = courseController.getTopCourses()
     return enrolls
+
+@blueprint.route('/course/searchbyname/<string:name>',methods=["GET"])
+def searchByName(name):
+    courses=courseController.searchCourseByName(name)
+    return courses
+@blueprint.route('/course/searchbyprerequisite',methods=["GET"])
+def searchByPre():
+    courses=courseController.searchCourseBypreRequisite()
+    return courses
+@blueprint.route('/course/searchbydescription',methods=["GET"])
+def searchByDesc():
+    courses=courseController.searchCourseByDescription()
+    return courses

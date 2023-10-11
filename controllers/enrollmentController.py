@@ -11,7 +11,7 @@ def getAll():
     return {"enrollments":[enrollment.as_dict() for enrollment in enrollments]},200
 
 def create():
-    max_enroll= 3
+    max_enroll= 5
     data=request.get_json()
     #nanti ambil dari jwt
     user=User.get_user_by_id(data.get('user_id'))
@@ -25,6 +25,8 @@ def create():
     course= Course.get_course_by_id(data.get('course_id'))
     if course is None:
         return {'msg':'course_id is invalid'},400
+    if course.course_id == data.get('course_id'):
+        return {'msg':"Cannot prerequisited by itself"},400
     
     enroll_exist=Enrollment.get_unique(user_id=data.get('user_id'),
                                        course_id=data.get('course_id')

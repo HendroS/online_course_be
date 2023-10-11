@@ -6,8 +6,9 @@ class Category(db.Model):
     __tablename__='categories'
     category_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
     category_name:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
-    description:Mapped[str] = mapped_column(db.String(60), nullable=True)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow)
+    description:Mapped[str] = mapped_column(db.Text, nullable=True)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
+    updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
     courses= db.relationship('Course',backref='category',lazy=True)
     
@@ -17,6 +18,9 @@ class Category(db.Model):
     @classmethod
     def get_category_by_id(cls,id):
         return cls.query.filter_by(category_id = id).first()
+    @classmethod
+    def get_category_by_name(cls,name):
+        return cls.query.filter_by(category_name = name).first()
     
     @classmethod
     def get_all(cls):

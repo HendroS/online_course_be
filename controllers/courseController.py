@@ -1,7 +1,7 @@
 from flask import abort, request
 from models import Course,Category
 from flask_jwt_extended import current_user
-from helpers.utils import checkField 
+from helpers.utils import checkField
 
 
 def get(id):
@@ -123,4 +123,33 @@ def switch_active(id):
 
 def getTopCourses(numbers=5):
     enrolls= Course.get_top_favorite(numbers)
-    return {'top_':[dict(c) for c in enrolls]}
+    return {'top':[dict(c) for c in enrolls]}
+
+
+def searchCourseByName(course_name):
+    courses=Course.query.filter_by(course_name=course_name).all()
+    return {'courses':[course.as_dict() for course in courses]}
+
+def searchCourseBypreRequisite():
+    prerequisite_ids=request.get_json().get('prerequisites')
+    print(prerequisite_ids)
+    courses=Course.query
+    # courses= Course.query.filter(Course.prerequisites.contains(Course.course_id.in_(prerequisite_ids))).all()
+    if prerequisite_ids != None:
+        for id in prerequisite_ids:
+            print(id)
+            # courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
+            courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
+
+    courses=courses.all()
+    print(courses)
+    return {'courses':[course.as_dict() for course in courses]}
+
+def searchCourseByDescription():
+    description=request.get_json().get('description')
+    if description == None:
+        abort(400)
+    courses =Course.query.filter(Course.description.ilike(f'%{description}%'))
+
+    return {'courses':[course.as_dict() for course in courses]}
+

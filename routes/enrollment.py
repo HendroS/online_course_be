@@ -18,7 +18,7 @@ def enrollment(course_id=None):
         enroll = enrollmentController.delete(course_id=course_id)
         return enroll
     if method =="PUT":
-        print(course_id)
+        # print(course_id)
         enroll = enrollmentController.update(course_id=course_id)
         return enroll
     
