@@ -7,7 +7,7 @@ class Enrollment(db.Model):
     __tablename__='enrollment'
     user_id:Mapped[int]= mapped_column(ForeignKey("users.user_id"),primary_key=True)
     course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"),primary_key=True)
-    is_completed:Mapped[bool] = mapped_column("is_completed",db.Boolean,nullable=False,default=False)
+    is_completed:Mapped[bool] = mapped_column(db.Boolean,nullable=False,default=False)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import request
 from models import Category
 from flask_jwt_extended import current_user
-from helpers.utils import checkField 
+# from helpers.utils import checkField 
 
 
 def getAll():
@@ -13,6 +13,7 @@ def get(id):
     category=Category.query.filter_by(category_id=id).first_or_404()
     return category.as_dict()
 def delete(id):
+    
     category=Category.query.filter_by(category_id=id).first_or_404()
     category.delete()
     return {"msg":"delete success"}
