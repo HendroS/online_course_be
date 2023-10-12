@@ -7,13 +7,17 @@ prerequisites = db.Table('prerequisites',
     db.Column('prerequisite_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True)
 )
 
+course_instructor = db.Table('course_instructor',
+    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True),
+    db.Column('instructor_id', db.Integer, db.ForeignKey('instructors.instructor_id'), primary_key=True)
+)
 
 class Course(db.Model):
     __tablename__='courses'
     course_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
     category_id:Mapped[int]= mapped_column(ForeignKey("categories.category_id"), nullable=False)
     course_name:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
-    description:Mapped[str] = mapped_column(db.String, nullable=True)
+    description:Mapped[str] = mapped_column(db.Text, nullable=True)
     is_active:Mapped[str]= mapped_column(db.Boolean,nullable=False,default=True)
 
     prerequisites = relationship('Course', 
@@ -22,7 +26,10 @@ class Course(db.Model):
                                 secondaryjoin = (prerequisites.c.prerequisite_id == course_id),
                                 backref = 'needed_on'
                                 )
-    enrolls= relationship("Enrollment",backref='course',lazy=True)
+    instructors=relationship('Course', secondary=course_instructor, lazy='subquery',
+        backref=db.backref('courses', lazy=True))
+    enrolls = relationship("Enrollment",backref='course',lazy=True)
+    chapters = relationship('Chapter',backref='course',lazy=True)
     
     
     def __repr__(self):
