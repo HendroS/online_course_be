@@ -53,6 +53,8 @@ def create():
         course.instructors.append(instructor)
 
     elif isinstance(data.get('instructor_ids'),list):
+        if len(data.get('instructor_ids'))<1:
+            return {'msg':'required at least one valid instructor id'},400
         for id in data.get('instructor_ids'):
             instructor=Instructor.get_instructor(id)
             if instructor == None:
@@ -130,6 +132,9 @@ def update(id):
             course.instructors.append(instructor)
 
         elif isinstance(data.get('instructor_ids'),list):
+            if len(data.get('instructor_ids'))<1:
+                return {'msg':'required at least one valid instructor id'},400
+            
             for id in data.get('instructor_ids'):
                 instructor=Instructor.get_instructor(id)
                 if instructor == None:
