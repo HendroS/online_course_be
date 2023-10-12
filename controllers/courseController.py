@@ -1,5 +1,5 @@
 from flask import abort, request
-from models import Course,Category
+from models import Course,Category,Instructor
 from flask_jwt_extended import current_user
 from helpers.utils import checkField
 
@@ -36,7 +36,7 @@ def get_all():
 
 def create():
     data = request.get_json()
-    required=['category_id','course_name']
+    required=['category_id','course_name','instructor_ids']
     not_present= checkField(required,data)
     if len(not_present)>0:
         return {'msg':f'field {", ".join(not_present)} are required.'},400
@@ -45,6 +45,21 @@ def create():
         return {'msg': f'category_id {data.get("category_id")} is not found in database'},400
     course = Course(category_id=data.get("category_id"),
                     course_name = data.get("course_name"))
+    
+    if isinstance(data.get('instructor_ids'),int):
+        instructor=Instructor.get_instructor(data.get('instructor_ids'))
+        if instructor == None:
+            return {'msg':f'invalid instructor_id {id}'},400
+        course.instructors.append(instructor)
+
+    elif isinstance(data.get('instructor_ids'),list):
+        for id in data.get('instructor_ids'):
+            instructor=Instructor.get_instructor(id)
+            if instructor == None:
+                return {'msg':f'invalid instructor_id {id}'},400
+            course.instructors.append(instructor)
+            
+
     if data.get('description') != None:
         course.description = data.get('description')
     
@@ -71,7 +86,7 @@ def delete(id):
 
 def update(id):
     data = request.get_json()
-    course =Course.get_course_by_id(id)
+    course =Course.query.filter_by(course_id=id).first_or_404()
 
     if data.get('description') != None:
         course.description = data.get('description')
@@ -106,6 +121,20 @@ def update(id):
             if pre_course == None:
                 return {'msg':f'course id {id} not valid.'},400
             course.prerequisites.append(pre_course)
+    if data.get('instructors')!=None:
+        course.instructors=[]
+        if isinstance(data.get('instructor_ids'),int):
+            instructor=Instructor.get_instructor(data.get('instructor_ids'))
+            if instructor == None:
+                return {'msg':f'invalid instructor_id {id}'},400
+            course.instructors.append(instructor)
+
+        elif isinstance(data.get('instructor_ids'),list):
+            for id in data.get('instructor_ids'):
+                instructor=Instructor.get_instructor(id)
+                if instructor == None:
+                    return {'msg':f'invalid instructor_id {id}'},400
+                course.instructors.append(instructor)
     
     course.save()
     return {'msg':'update sucessfull',
@@ -132,12 +161,12 @@ def searchCourseByName(course_name):
 
 def searchCourseBypreRequisite():
     prerequisite_ids=request.get_json().get('prerequisites')
-    print(prerequisite_ids)
+    # print(prerequisite_ids)
     courses=Course.query
     # courses= Course.query.filter(Course.prerequisites.contains(Course.course_id.in_(prerequisite_ids))).all()
     if prerequisite_ids != None:
         for id in prerequisite_ids:
-            print(id)
+            # print(id)
             # courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
             courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
 
