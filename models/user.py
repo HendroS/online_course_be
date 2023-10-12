@@ -13,6 +13,7 @@ class User(db.Model):
     role_id:Mapped[int] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
 
     enrolls= relationship("Enrollment",backref='user',lazy=True)
+    user_chapters= relationship('UserChapter',backref='user',lazy=True)
 
 
 
