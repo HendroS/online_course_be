@@ -1,12 +1,12 @@
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 from datetime import datetime
 
 class Chapter(db.Model):
     __tablename__='chapter'
     chapter_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
-    course_id:Mapped[str] = mapped_column(ForeignKey("categories.category_id"), nullable=False)
+    course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"), nullable=False)
     chapter_name:Mapped[str]= mapped_column(db.String(255), nullable=False)
     order:Mapped[int]= mapped_column(db.Integer, nullable=False)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
@@ -14,6 +14,8 @@ class Chapter(db.Model):
     is_active:Mapped[bool]=mapped_column(db.Boolean,nullable=False,default=True)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+
+    user_chapters= relationship('UserChapter',backref='chapter',lazy=True)
 
     def __repr__(self):
         return f'<Chapter {self.chapter_id} {self.chapter_name}>'
