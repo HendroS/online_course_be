@@ -18,6 +18,7 @@ class Chapter(db.Model):
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
     enrollment_details= relationship('EnrollmentDetail',backref='chapter',lazy=True)
+    
 
     def __repr__(self):
         return f'<Chapter {self.chapter_id} {self.chapter_name}>'

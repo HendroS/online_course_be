@@ -13,6 +13,8 @@ class Enrollment(db.Model):
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
+    enrollment_details= relationship('EnrollmentDetail',backref='enrollment',lazy=True) 
+
     __table_args__ = (
         UniqueConstraint(user_id, course_id, name='unique_user_course'),
     )

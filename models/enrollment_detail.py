@@ -18,21 +18,27 @@ class EnrollmentDetail(db.Model):
         return f'<EnrollmentDetail {self.user_id} {self.chapter_id}>'
     
     @classmethod
-    def get_by_user(cls,user_id):
-        return cls.query.filter_by(user_id = user_id).all()
+    def get_enrollment(cls,enroll_id):
+        return cls.query.filter_by(enrollment_id=enroll_id).all()
     
     @classmethod
     def get_by_chapter(cls,chapter_id):
         return cls.query.filter_by(chapter_id = chapter_id).all()
     
     @classmethod
-    def get_unique(cls,user_id,chapter_id):
-        return cls.query.filter(user_id=user_id,chapter_id=chapter_id).first()
+    def get_unique(cls,enrollment_id,chapter_id):
+        return cls.query.filter_by(enrollment_id=enrollment_id,chapter_id=chapter_id).first()
 
     
     @classmethod
     def get_all(cls):
         return cls.query.all()
+    
+    def completed(self):
+        self.is_completed = True
+        self.updated_at = datetime.utcnow()
+        db.session.commit()
+
     
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
