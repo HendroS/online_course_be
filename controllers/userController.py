@@ -14,7 +14,8 @@ def get(id):
    
     user =result.as_dict()
     # user['enrolls']=[e.enrolls.]
-    user['enrolls']=[e.course.course_name for e in result.enrolls]
+    user['enrolls']=[{'course':e.course.course_name,
+                      'status':'completed' if e.is_completed == True else 'uncompleted'} for e in result.enrolls]
     user.pop('password')
     return user
 

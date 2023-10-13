@@ -34,3 +34,9 @@ def update(id):
     instructor.image=data.get('image')    
     instructor.save()
     return instructor.as_dict()
+
+def softDelete(id):
+    instructor= Instructor.query.filter_by(instructor_id=id).first_or_404()
+    instructor.is_active= False
+    instructor.save()
+    return {'msg':'soft delete success'}

@@ -26,7 +26,7 @@ class Course(db.Model):
                                 secondaryjoin = (prerequisites.c.prerequisite_id == course_id),
                                 backref = 'needed_on'
                                 )
-    instructors=relationship('Course', secondary=course_instructor, lazy='subquery',
+    instructors=relationship('Instructor', secondary=course_instructor, lazy='subquery',
         backref=db.backref('courses', lazy=True))
     enrolls = relationship("Enrollment",backref='course',lazy=True)
     chapters = relationship('Chapter',backref='course',lazy=True)

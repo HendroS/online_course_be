@@ -26,7 +26,7 @@ class Instructor(db.Model):
     
     @classmethod
     def get_all(cls):
-        return cls.query.all()
+        return cls.query.filter_by(is_active=True).all()
     
     @classmethod
     def get_all_active_status(cls,is_active:bool):

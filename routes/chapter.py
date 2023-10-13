@@ -3,10 +3,9 @@ from controllers import chapterController
 from flask_jwt_extended import jwt_required,get_jwt,current_user
 from flask import request
 
-@blueprint.route('/chapter',methods=['GET',"POST"])
-@blueprint.route('/chapter/<int:id>',methods=["DELETE","PUT"])
-
-def chapter(id):
+@blueprint.route('/chapter',methods=["GET","POST"])
+@blueprint.route('/chapter/<int:id>',methods=["GET","DELETE","PUT"])
+def chapter(id=None):
     method = request.method
     if method == "GET":
         if id == None:
@@ -17,4 +16,4 @@ def chapter(id):
     if method == "PUT":
         return chapterController.update(id)
     if method == "DELETE":
-        return chapterController.delete(id)
+        return chapterController.softDelete(id)

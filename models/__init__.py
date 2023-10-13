@@ -8,4 +8,4 @@ from .course import Course
 from .enrollment import Enrollment
 from .instructor import Instructor
 from .chapter import Chapter
-from .user_chapter import UserChapter
+from .enrollment_detail import EnrollmentDetail

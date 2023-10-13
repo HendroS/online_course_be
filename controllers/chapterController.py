@@ -16,9 +16,14 @@ def delete(id):
     chapter.delete()
     return {'msg':'delete successfull'}
 
+def softDelete(id):
+    chapter=Chapter.query.filter_by(chapter_id=id).first_or_404()
+    chapter.softDelete()
+    return {'msg':'soft deleted'}
+
 def create():
     data = request.get_json()
-    required=['course_id','chapter_name','order']
+    required=['course_id','chapter_name','order','content']
     not_present= checkField(required,data)
     if len(not_present)>0:
         return {'msg':f'field {", ".join(not_present)} are required.'},400
@@ -29,7 +34,8 @@ def create():
     
     chapter= Chapter(course_id=data.get('course_id'),
                      chapter_name=data.get('chapter_name'),
-                     order=data.get('order')
+                     order=data.get('order'),
+                     content=data.get('content')
                      )
     if data.get('description'):
         chapter.image=data.get('description')
@@ -42,23 +48,26 @@ def create():
 
 def update(id):
     data = request.get_json()
-    required=['course_id','chapter_name','order']
+    required=['chapter_name','order']
     not_present= checkField(required,data)
     if len(not_present)>0:
         return {'msg':f'field {", ".join(not_present)} are required.'},400
     
     chapter= Chapter.query.filter_by(chapter_id=id).first_or_404()
     
-    course= Course.get_course_by_id(data.get('course_id'))
-    if course == None:
-        return {'msg':'invalid course_id'},400
+    # course= Course.get_course_by_id(data.get('course_id'))
+    # if course == None:
+    #     return {'msg':'invalid course_id'},400
     
-    chapter.course_id = data.get('course_id')
-    chapter.name = chapter.data.get('chapter_name')
-    chapter.order = chapter.data.get('order')
+    # chapter.course_id = data.get('course_id')
+    chapter.name = data.get('chapter_name')
+    chapter.order = data.get('order')
 
+    if data.get('content'):
+        chapter.content=data.get('content')
+    
     if data.get('description'):
-        chapter.image=data.get('description')
+        chapter.description=data.get('description')
     
     if data.get('image'):
         chapter.image= data.get('image')

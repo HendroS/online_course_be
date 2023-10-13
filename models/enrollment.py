@@ -1,15 +1,21 @@
-from sqlalchemy import ForeignKey,text,select,func
+from sqlalchemy import ForeignKey,UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from datetime import datetime
 from . import db
 
 class Enrollment(db.Model):
     __tablename__='enrollment'
-    user_id:Mapped[int]= mapped_column(ForeignKey("users.user_id"),primary_key=True)
-    course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"),primary_key=True)
+
+    enrollment_id:Mapped[int]= mapped_column(db.Integer,autoincrement=True,primary_key=True)
+    user_id:Mapped[int]= mapped_column(ForeignKey("users.user_id"),nullable=False)
+    course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"),nullable=False)
     is_completed:Mapped[bool] = mapped_column(db.Boolean,nullable=False,default=False)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint(user_id, course_id, name='unique_user_course'),
+    )
 
     
     def __repr__(self):
@@ -18,16 +24,20 @@ class Enrollment(db.Model):
 
     
     @classmethod
-    def get_by_user_id(cls,id):
+    def get_by_user_id(cls,id)->list:
         return cls.query.filter_by(user_id = id).all()
     
     @classmethod
-    def get_by_course_id(cls,id):
+    def get_by_course_id(cls,id)->list:
         return cls.query.filter_by(course_id = id).all()
     
     @classmethod
-    def get_unique(cls,user_id,course_id):
+    def get_unique(cls,user_id,course_id)->list:
         return cls.query.filter_by(course_id = course_id,user_id=user_id).first()
+    
+    @classmethod
+    def get(cls,id):
+        return cls.query.filter_by(enrollment_id = id).first()
     
     @classmethod
     def get_all(cls):

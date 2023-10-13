@@ -5,9 +5,9 @@ from . import db
 
 
 
-class UserChapter(db.Model):
-    __tablename__='user_chapter'
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"),primary_key=True)
+class EnrollmentDetail(db.Model):
+    __tablename__='enrollment_detail'
+    enrollment_id: Mapped[int] = mapped_column(ForeignKey("enrollment.enrollment_id"),primary_key=True)
     chapter_id:Mapped[int]= mapped_column(ForeignKey("chapter.chapter_id"),primary_key=True)
     is_completed:Mapped[bool]= mapped_column(db.Boolean,nullable=False,default=False)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
@@ -15,7 +15,7 @@ class UserChapter(db.Model):
 
 
     def __repr__(self):
-        return f'<UserChapter {self.user_id} {self.chapter_id}>'
+        return f'<EnrollmentDetail {self.user_id} {self.chapter_id}>'
     
     @classmethod
     def get_by_user(cls,user_id):

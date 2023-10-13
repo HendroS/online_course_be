@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required,get_jwt,current_user
 from flask import request
 
 @blueprint.route('/instructor',methods=['GET',"POST"])
-@blueprint.route('/instructor/<int:id>',methods=["DELETE","PUT"])
+@blueprint.route('/instructor/<int:id>',methods=["GET","DELETE","PUT"])
 def instructor(id=None):
     method = request.method
     if method == "GET":
@@ -16,7 +16,8 @@ def instructor(id=None):
         return instructorController.create()
         
     if method == "DELETE":
-        return instructorController.delete(id)
+        # return instructorController.delete(id)
+        return instructorController.softDelete(id)
         
     if method =="PUT":
        

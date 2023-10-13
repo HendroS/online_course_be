@@ -11,13 +11,13 @@ class Chapter(db.Model):
     order:Mapped[int]= mapped_column(db.Integer, nullable=False)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
     content:Mapped[str] = mapped_column(db.Text, nullable=False)
-    
+
     image:Mapped[str] = mapped_column(db.String(255), nullable=True)
     is_active:Mapped[bool]=mapped_column(db.Boolean,nullable=False,default=True)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
-    user_chapters= relationship('UserChapter',backref='chapter',lazy=True)
+    enrollment_details= relationship('EnrollmentDetail',backref='chapter',lazy=True)
 
     def __repr__(self):
         return f'<Chapter {self.chapter_id} {self.chapter_name}>'
@@ -32,7 +32,11 @@ class Chapter(db.Model):
     
     @classmethod
     def get_all(cls):
-        return cls.query.all()
+        return cls.query.filter_by(is_active=True).all()
+    
+    def softDelete(self):
+        self.is_active=False
+        db.session.commit()
     
     @classmethod
     def get_all_active_status(cls,is_active:bool):

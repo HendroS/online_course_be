@@ -5,8 +5,8 @@ from flask import request
 
 
 @blueprint.route('/enrollment',methods=['GET',"POST"])
-@blueprint.route('/enrollment/<int:course_id>',methods=["DELETE","PUT"])
-def enrollment(course_id=None):
+@blueprint.route('/enrollment/<int:id>',methods=["DELETE","PUT"])
+def enrollment(id=None):
     method = request.method
     if method == "GET":
         enrolls= enrollmentController.getAll()
@@ -15,10 +15,9 @@ def enrollment(course_id=None):
         enroll = enrollmentController.create()
         return enroll
     if method == "DELETE":
-        enroll = enrollmentController.delete(course_id=course_id)
+        enroll = enrollmentController.delete(id)
         return enroll
     if method =="PUT":
-        # print(course_id)
-        enroll = enrollmentController.update(course_id=course_id)
+        enroll = enrollmentController.update(id)
         return enroll
     

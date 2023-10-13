@@ -11,9 +11,10 @@ class User(db.Model):
     email:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     password:Mapped[str] = mapped_column(db.String(60), nullable=False)
     role_id:Mapped[int] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
+    # image:Mapped[str] = mapped_column(db.String(225), nullable=True)
 
     enrolls= relationship("Enrollment",backref='user',lazy=True)
-    user_chapters= relationship('UserChapter',backref='user',lazy=True)
+
 
 
 

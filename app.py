@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from flask import Flask
 from dotenv import load_dotenv
@@ -15,6 +16,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('FLASK_DB_URI_ONLINECOURSE')
     app.config["JWT_SECRET_KEY"] = os.getenv('FLASK_JWT_SECRET_KEY')
     app.config["JWT_ALGORITHM"] = os.getenv('FLASK_JWT_ALGHORITHM')
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=6)
     db.init_app(app)
     jwt.init_app(app)
 

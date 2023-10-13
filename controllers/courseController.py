@@ -16,21 +16,24 @@ def get(id):
     return result,200
 
 def get_all():
-    select= request.args.get('select','all')
-    if select.lower() == 'inactive':  
+    select= request.args.get('select')
+    if select != None and select.lower() == 'inactive':  
         courses=Course.get_all_with_active_status(False)
-    elif select.lower() == 'active':
-        courses=Course.get_all_with_active_status(True)
-    else :  
+    elif select != None and select.lower() == 'all':
         courses=Course.get_all()
+    else :  
+        courses=Course.get_all_with_active_status(True)
     # courses= [course.as_dict() for course in courses]
     # courses= [course['prerequisites'] for course in courses]
     result= []
     for c in courses:
         course= c.as_dict()
         course['prerequisites']=[]
+        course['instructors']=[]
         for p in c.prerequisites:
             course['prerequisites'].append(p.course_name)
+        for i in c.instructors:
+            course['instructors'].append(i.instructor_name)
         result.append(course)
     return {'courses':result},200
 
@@ -52,7 +55,7 @@ def create():
             return {'msg':f'invalid instructor_id {id}'},400
         course.instructors.append(instructor)
 
-    elif isinstance(data.get('instructor_ids'),list):
+    if isinstance(data.get('instructor_ids'),list):
         if len(data.get('instructor_ids'))<1:
             return {'msg':'required at least one valid instructor id'},400
         for id in data.get('instructor_ids'):
@@ -79,7 +82,9 @@ def create():
             course.prerequisites.append(pre_course)
         
     course.save()
-    return course.as_dict(),201
+    result= course.as_dict()
+    result['instructors']=[i.instructor_name for i in course.instructors]
+    return result,201
 
 def delete(id):
     course = Course.get_course_by_id(id)
@@ -123,7 +128,7 @@ def update(id):
             if pre_course == None:
                 return {'msg':f'course id {id} not valid.'},400
             course.prerequisites.append(pre_course)
-    if data.get('instructors')!=None:
+    if data.get('instructor_ids')!=None:
         course.instructors=[]
         if isinstance(data.get('instructor_ids'),int):
             instructor=Instructor.get_instructor(data.get('instructor_ids'))
@@ -142,8 +147,10 @@ def update(id):
                 course.instructors.append(instructor)
     
     course.save()
+    result= course.as_dict()
+    result['instructors']=[i.instructor_name for i in course.instructors]
     return {'msg':'update sucessfull',
-            'data':course.as_dict()
+            'data':result
             },200
 
 
@@ -160,30 +167,21 @@ def getTopCourses(numbers=5):
     return {'top':[dict(c) for c in enrolls]}
 
 
-def searchCourseByName(course_name):
-    courses=Course.query.filter_by(course_name=course_name).all()
-    return {'courses':[course.as_dict() for course in courses]}
+def searchCourse():
+    data=request.get_json()
 
-def searchCourseBypreRequisite():
-    prerequisite_ids=request.get_json().get('prerequisites')
-    # print(prerequisite_ids)
     courses=Course.query
-    # courses= Course.query.filter(Course.prerequisites.contains(Course.course_id.in_(prerequisite_ids))).all()
-    if prerequisite_ids != None:
-        for id in prerequisite_ids:
-            # print(id)
-            # courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
-            courses=courses.filter(Course.prerequisites.any(Course.course_id.in_([id])))
 
-    courses=courses.all()
-    print(courses)
-    return {'courses':[course.as_dict() for course in courses]}
+    if data.get('name',None) != None:
+        courses=courses.filter(Course.course_name.ilike(f"%{data.get('name')}%"))
 
-def searchCourseByDescription():
-    description=request.get_json().get('description')
-    if description == None:
-        abort(400)
-    courses =Course.query.filter(Course.description.ilike(f'%{description}%'))
+    if data.get('prerequisites') != None :
+        courses= courses.filter(Course.prerequisites.any(Course.course_id.in_(data.get('prerequisites'))))
+
+    if data.get('description') != None :
+        courses =Course.query.filter(Course.description.ilike(f'%{data.get("description")}%'))
+    
+    courses=courses.filter_by(is_active=True).all()
 
     return {'courses':[course.as_dict() for course in courses]}
 
