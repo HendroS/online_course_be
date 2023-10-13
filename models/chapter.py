@@ -10,6 +10,8 @@ class Chapter(db.Model):
     chapter_name:Mapped[str]= mapped_column(db.String(255), nullable=False)
     order:Mapped[int]= mapped_column(db.Integer, nullable=False)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
+    content:Mapped[str] = mapped_column(db.Text, nullable=False)
+    
     image:Mapped[str] = mapped_column(db.String(255), nullable=True)
     is_active:Mapped[bool]=mapped_column(db.Boolean,nullable=False,default=True)
     created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
