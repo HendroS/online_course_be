@@ -1,6 +1,7 @@
+from functools import wraps
 from flask import jsonify, request
-from flask_jwt_extended import create_access_token,create_refresh_token
-from models import User
+from flask_jwt_extended import create_access_token,create_refresh_token, get_jwt_identity,get_jwt, verify_jwt_in_request
+from models import User,TokenBlocklist
 
 def register():
     data=request.get_json()
@@ -32,7 +33,8 @@ def login():
     access_token = create_access_token(identity=username,
                                        additional_claims=additional
                                        )
-    refresh_token =create_refresh_token(identity=username)
+    refresh_token =create_refresh_token(identity=username,
+                                        additional_claims=additional)
     # return jsonify(access_token=access_token)
 
     return {"msg":"Logged In",
@@ -40,3 +42,19 @@ def login():
                 "access":access_token,
                 "refresh":refresh_token
             }}
+
+
+def refresh():
+    identity= get_jwt_identity()
+    j=get_jwt()
+    new_access_token= create_access_token(identity=identity,additional_claims={'role':j.get('role')})
+    return {"access_token":new_access_token},200
+
+
+def logout():
+    jwt=get_jwt()
+    jti=jwt['jti']
+    token_type=jwt['type']
+    block= TokenBlocklist(jti=jti)
+    block.save()
+    return {'msg':f'{token_type} token revoked successfully'},200

@@ -34,6 +34,9 @@ def create():
     if enrollment == None:
         return {'msg':'invalid enrollment_id'},400
     
+    if current_user.user_id != enrollment.user_id:
+        return {'msg':'The enrollment is not belong to you'},403
+    
     chapter= Chapter.get_chapter(chapter_id)
     if chapter == None:
         return {'msg':'invalid chapter_id'},400
@@ -52,6 +55,14 @@ def create():
 def complete(enrollment_id):
     data =request.get_json()
     chapter_id= data.get('chapter_id',None)
+
+    enrollment= Enrollment.get(enrollment_id)
+    if enrollment == None:
+        return {'msg':'invalid enrollment_id'},400
+    
+    if current_user.user_id != enrollment.user_id:
+        return {'msg':'The enrollment is not belong to you'},403
+
     chapter= Chapter.get_chapter(chapter_id)
     if chapter == None:
         return {'msg':'invalid chapter id'},400

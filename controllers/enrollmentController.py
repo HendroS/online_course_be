@@ -23,9 +23,10 @@ def create():
     max_enroll= 5
     data=request.get_json()
     #nanti ambil dari jwt
-    user=User.get_user_by_id(data.get('user_id'))
-    if user is None:
-        return {'msg':'user_id is invalid'},400
+    # user=User.get_user_by_id(data.get('user_id'))
+    #dari jwt
+    user=current_user
+
     uncompleted_enroll=list(filter(lambda enroll: enroll.is_completed == False ,user.enrolls))
     
     if len(uncompleted_enroll) >= max_enroll:
@@ -43,13 +44,13 @@ def create():
     if course_pre_id.issubset(completed_course_id) == False:
         return {'message':'Prerequisites not fullfilled. Please take and complete course needed'},405
     
-    enroll_exist=Enrollment.get_unique(user_id=data.get('user_id'),
+    enroll_exist=Enrollment.get_unique(user_id=user.user_id,
                                        course_id=data.get('course_id')
                                        )
     if enroll_exist != None:
         return {'msg':f'user_id {enroll_exist.user_id} already enroll to course_id {enroll_exist.course_id} .'},400
 
-    enrollment= Enrollment(user_id = data.get('user_id'),
+    enrollment= Enrollment(user_id = user.user_id,
                            course_id = data.get('course_id')
                            )
     enrollment.save()
@@ -60,6 +61,9 @@ def create():
 
 def update(id):
     enroll = Enrollment.query.filter_by(enrollment_id=id).first_or_404()
+    
+    if enroll.user_id != current_user.user_id:
+        return {'msg':'enrollment is not belong to you'},403
    
     if enroll.is_completed == True:
         return {'msg': 'Enrollment already completed'},200

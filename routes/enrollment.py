@@ -1,3 +1,4 @@
+from controllers.auth.decorators import member_required
 from . import blueprint
 from controllers import enrollmentController
 from flask_jwt_extended import jwt_required,get_jwt,current_user
@@ -6,6 +7,7 @@ from flask import request
 
 @blueprint.route('/enrollment',methods=['GET',"POST"])
 @blueprint.route('/enrollment/<int:id>',methods=["DELETE","PUT"])
+@member_required()
 def enrollment(id=None):
     method = request.method
     if method == "GET":

@@ -1,3 +1,4 @@
+from controllers.auth.decorators import admin_required
 from . import blueprint
 from controllers import userController
 from flask_jwt_extended import jwt_required,get_jwt,current_user
@@ -5,25 +6,22 @@ from flask import request
 
 
 @blueprint.route('/user',methods=['GET'])
+@admin_required()
+def allUser():
+    return userController.getAll()
+
 @blueprint.route('/user/<int:id>',methods=['GET','PUT'])
 @jwt_required()
-def user(id=None):
+def user(id):
     method= request.method
     if method=='GET':
-        if id is None:
-        # claims= get_jwt()
-        # print(current_user)
-        # if claims.get('role') is not 'admin':
-        #     return 'you are not authorized',401
-            result = userController.getAll()
-        else:
-            result = userController.get(id)
-        return result
+        return userController.get(id)
+    
     if method=='PUT':
-        result = userController.update(id)
-        return result
+        return userController.update(id)
     
 @blueprint.route('/user/top',methods=['GET'])
+@admin_required()
 def getTopUserEnroll():
-    users = userController.getTopUserEnroll()
-    return users
+    return userController.getTopUserEnroll()
+    

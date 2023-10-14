@@ -1,24 +1,28 @@
+from controllers.auth.decorators import admin_required
 from . import blueprint
 from controllers import courseController
 from flask_jwt_extended import jwt_required,get_jwt,current_user
 from flask import request
 
+@blueprint.route('/course',methods=['GET'])
+@blueprint.route('/course/<int:id>',methods=['GET'])
+def getCourse(id=None):
+    if id == None:
+        return courseController.get_all()
+    return courseController.get(id)
 
-@blueprint.route('/course',methods=['GET','POST'])
-@blueprint.route('/course/<int:id>',methods=['GET','PUT'])
-@jwt_required()
+@blueprint.route('/course',methods=['POST'])
+@blueprint.route('/course/<int:id>',methods=['PUT'])
+@admin_required()
 def course(id=None):
     method = request.method
-    if method == "GET":
-        if id == None:
-            return courseController.get_all()
-        return courseController.get(id)
     if method == "POST":
         return courseController.create()
     if method == "PUT":
         return courseController.update(id)
 
 @blueprint.route('/course_active/<int:id>',methods=['PUT'])
+@admin_required()
 def switch_active(id):
     return courseController.switch_active(id)
 
@@ -28,7 +32,7 @@ def top_enrollment():
     return enrolls
 
 @blueprint.route('/course/search',methods=["GET"])
-def searchByName():
+def searchCourse():
     courses=courseController.searchCourse()
     return courses
 
