@@ -44,7 +44,7 @@ def update(id):
         if user_username != None:
             return {'msg':'username already used'},400
     if password != None:
-        user.password = password
+        user.set_password(password)
 
     if role_id != None:
         if current_user.role.role_name != 'admin':
