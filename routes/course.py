@@ -5,14 +5,14 @@ from flask_jwt_extended import jwt_required,get_jwt,current_user
 from flask import request
 
 @blueprint.route('/course',methods=['GET'])
-@blueprint.route('/course/<int:id>',methods=['GET'])
+@blueprint.route('/course/<uuid:id>',methods=['GET'])
 def getCourse(id=None):
     if id == None:
         return courseController.get_all()
     return courseController.get(id)
 
 @blueprint.route('/course',methods=['POST'])
-@blueprint.route('/course/<int:id>',methods=['PUT'])
+@blueprint.route('/course/<uuid:id>',methods=['PUT'])
 @admin_required()
 def course(id=None):
     method = request.method
@@ -21,7 +21,7 @@ def course(id=None):
     if method == "PUT":
         return courseController.update(id)
 
-@blueprint.route('/course_active/<int:id>',methods=['PUT'])
+@blueprint.route('/course_active/<uuid:id>',methods=['PUT'])
 @admin_required()
 def switch_active(id):
     return courseController.switch_active(id)

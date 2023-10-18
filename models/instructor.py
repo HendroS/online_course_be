@@ -1,10 +1,12 @@
+from uuid import uuid4
+from sqlalchemy import UUID
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 
 
 class Instructor(db.Model):
     __tablename__='instructors'
-    instructor_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
+    instructor_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
     instructor_name:Mapped[str] = mapped_column(db.String(60), nullable=False)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
     image:Mapped[str] = mapped_column(db.String(255), nullable=True)

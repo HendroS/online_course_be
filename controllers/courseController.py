@@ -1,7 +1,7 @@
 from flask import abort, request
 from models import Course,Category,Instructor
 from flask_jwt_extended import current_user
-from helpers.utils import checkField
+from helpers.utils import checkField,checkValidUUID
 
 
 def get(id):
@@ -43,22 +43,32 @@ def create():
     not_present= checkField(required,data)
     if len(not_present)>0:
         return {'msg':f'field {", ".join(not_present)} are required.'},400
+    
+    if not checkValidUUID(data.get('category_id')):
+        return {'msg':'invalid category UUID'},400
+    
     category=Category.get_category_by_id(data.get('category_id'))
     if category == None:
         return {'msg': f'category_id {data.get("category_id")} is not found in database'},400
     course = Course(category_id=data.get("category_id"),
                     course_name = data.get("course_name"))
     
-    if isinstance(data.get('instructor_ids'),int):
+    if isinstance(data.get('instructor_ids'),str):
+        if not checkValidUUID(data.get('instructor_id')):
+            return {'msg':'invalid instructor UUID'},400
+        
         instructor=Instructor.get_instructor(data.get('instructor_ids'))
         if instructor == None:
             return {'msg':f'invalid instructor_id {id}'},400
         course.instructors.append(instructor)
 
-    if isinstance(data.get('instructor_ids'),list):
+    elif isinstance(data.get('instructor_ids'),list):
         if len(data.get('instructor_ids'))<1:
             return {'msg':'required at least one valid instructor id'},400
         for id in data.get('instructor_ids'):
+            if not checkValidUUID(id):
+                return {'msg':'invalid instructor UUID'},400
+            
             instructor=Instructor.get_instructor(id)
             if instructor == None:
                 return {'msg':f'invalid instructor_id {id}'},400
@@ -71,14 +81,19 @@ def create():
     if data.get('prerequisites')!=None:
         if isinstance(data.get('prerequisites'), list):
            for id in data.get('prerequisites'):
-               pre_course= Course.get_course_by_id(id)
-               if pre_course == None:
-                   return {'msg':f'course id {id} not valid.'},400
-               course.prerequisites.append(pre_course)
+                if not checkValidUUID(id):
+                    return {'msg':'invalid prerequisites UUID'},400
+                
+                pre_course= Course.get_course_by_id(id)
+                if pre_course == None:
+                    return {'msg':f'course id {id} not valid.'},400
+                course.prerequisites.append(pre_course)
         else:
-            pre_course= Course.get_course_by_id(id)
+            if not checkValidUUID(data.get('prerequisites')):
+                return {'msg':'invalid prerequisites UUID'},400
+            pre_course= Course.get_course_by_id(data.get('prerequisites'))
             if pre_course == None:
-                return {'msg':f'course id {id} not valid.'},400
+                return {'msg':f'course id {data.get("prerequisites")} not valid.'},400
             course.prerequisites.append(pre_course)
         
     course.save()
@@ -99,6 +114,9 @@ def update(id):
         course.description = data.get('description')
     
     if data.get('category_id') != None:
+        if not checkValidUUID(data.get('category_id')):
+            return {'msg':'invalid category UUID'},400
+        
         category=Category.get_category_by_id(data.get('category_id'))
         if category == None:
             return {'msg': f'category_id {data.get("category_id")} is not found in database'},400
@@ -115,13 +133,19 @@ def update(id):
         course.prerequisites=[]
         if isinstance(data.get('prerequisites'), list):
            for id in data.get('prerequisites'):
-               if id == course.course_id:
+                if not checkValidUUID(id):
+                    return {'msg':'invalid prerequisites UUID'},400
+                
+                if id == course.course_id:
                    return {'msg':f"Can not reference to itself"},400
-               pre_course= Course.get_course_by_id(id)
-               if pre_course == None:
-                   return {'msg':f'course id {id} not valid.'},400
-               course.prerequisites.append(pre_course)
+                pre_course= Course.get_course_by_id(id)
+                if pre_course == None:
+                    return {'msg':f'course id {id} not valid.'},400
+                course.prerequisites.append(pre_course)
         else:
+            if not checkValidUUID(data.get('prerequisites')):
+                return {'msg':'invalid prerequisites UUID'},400
+            
             if data.get('prerequisites')== course.course_id:
                 return {'msg':f"Can not reference to itself"},400
             pre_course= Course.get_course_by_id(data.get('prerequisites'))
@@ -130,17 +154,25 @@ def update(id):
             course.prerequisites.append(pre_course)
     if data.get('instructor_ids')!=None:
         course.instructors=[]
-        if isinstance(data.get('instructor_ids'),int):
+        if isinstance(data.get('instructor_ids'),str):
+            if not checkValidUUID(data.get('instructor_ids')):
+                return {'msg':'invalid instructor UUID'},400
+            
             instructor=Instructor.get_instructor(data.get('instructor_ids'))
             if instructor == None:
                 return {'msg':f'invalid instructor_id {id}'},400
             course.instructors.append(instructor)
 
         elif isinstance(data.get('instructor_ids'),list):
+
             if len(data.get('instructor_ids'))<1:
                 return {'msg':'required at least one valid instructor id'},400
             
             for id in data.get('instructor_ids'):
+                if not checkValidUUID(id):
+                    return {'msg':'invalid instructor UUID'},400
+
+
                 instructor=Instructor.get_instructor(id)
                 if instructor == None:
                     return {'msg':f'invalid instructor_id {id}'},400
@@ -157,6 +189,8 @@ def update(id):
 
 def switch_active(id):
     course = Course.get_course_by_id(id)
+    if course == None:
+        abort(404)
     course.is_active = not course.is_active
     course.save()
     return course.as_dict()
@@ -176,6 +210,9 @@ def searchCourse():
         courses=courses.filter(Course.course_name.ilike(f"%{data.get('name')}%"))
 
     if data.get('prerequisites') != None :
+        for id in data.get('prerequisites'):
+            if not checkValidUUID(id):
+                return {'msg':'invalid instructor UUID'},400
         courses= courses.filter(Course.prerequisites.any(Course.course_id.in_(data.get('prerequisites'))))
 
     if data.get('description') != None :

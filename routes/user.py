@@ -10,7 +10,7 @@ from flask import request
 def allUser():
     return userController.getAll()
 
-@blueprint.route('/user/<int:id>',methods=['GET','PUT'])
+@blueprint.route('/user/<uuid:id>',methods=['GET','PUT'])
 @jwt_required()
 def user(id):
     method= request.method

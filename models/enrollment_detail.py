@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import ForeignKey
+from uuid import uuid4
+from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 
@@ -7,10 +8,10 @@ from . import db
 
 class EnrollmentDetail(db.Model):
     __tablename__='enrollment_detail'
-    enrollment_id: Mapped[int] = mapped_column(ForeignKey("enrollment.enrollment_id"),primary_key=True)
-    chapter_id:Mapped[int]= mapped_column(ForeignKey("chapter.chapter_id"),primary_key=True)
+    enrollment_id:Mapped[uuid4]= mapped_column(ForeignKey("enrollment.enrollment_id"),primary_key=True)
+    chapter_id:Mapped[uuid4]= mapped_column(ForeignKey("chapter.chapter_id"),primary_key=True)
     is_completed:Mapped[bool]= mapped_column(db.Boolean,nullable=False,default=False)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow,nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
 

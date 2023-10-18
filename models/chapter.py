@@ -1,12 +1,13 @@
-from sqlalchemy import ForeignKey
+from uuid import uuid4
+from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 from datetime import datetime
 
 class Chapter(db.Model):
     __tablename__='chapter'
-    chapter_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
-    course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"), nullable=False)
+    chapter_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
+    course_id:Mapped[uuid4] = mapped_column(ForeignKey("courses.course_id"), nullable=False)
     chapter_name:Mapped[str]= mapped_column(db.String(255), nullable=False)
     order:Mapped[int]= mapped_column(db.Integer, nullable=False)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
@@ -14,7 +15,7 @@ class Chapter(db.Model):
 
     image:Mapped[str] = mapped_column(db.String(255), nullable=True)
     is_active:Mapped[bool]=mapped_column(db.Boolean,nullable=False,default=True)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow,nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
     enrollment_details= relationship('EnrollmentDetail',backref='chapter',lazy=True)

@@ -6,13 +6,13 @@ from flask import request
 
 
 @blueprint.route('/chapter',methods=["GET"])
-@blueprint.route('/chapter/<int:id>',methods=["GET"])
+@blueprint.route('/chapter/<uuid:id>',methods=["GET"])
 def getChapter(id=None):
     if id == None:
         return chapterController.getAll()
     return chapterController.get(id)
 @blueprint.route('/chapter',methods=["POST"])
-@blueprint.route('/chapter/<int:id>',methods=["DELETE","PUT"])
+@blueprint.route('/chapter/<uuid:id>',methods=["DELETE","PUT"])
 @admin_required()
 def chapter(id=None):
     method = request.method

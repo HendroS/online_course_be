@@ -1,21 +1,22 @@
-from sqlalchemy import ForeignKey, text
+from uuid import uuid4
+from sqlalchemy import UUID, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from . import db
 
 prerequisites = db.Table('prerequisites',
-    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True),
-    db.Column('prerequisite_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True)
+    db.Column('course_id', UUID(as_uuid=True), db.ForeignKey('courses.course_id'), primary_key=True),
+    db.Column('prerequisite_id', UUID(as_uuid=True), db.ForeignKey('courses.course_id'), primary_key=True)
 )
 
 course_instructor = db.Table('course_instructor',
-    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id'), primary_key=True),
-    db.Column('instructor_id', db.Integer, db.ForeignKey('instructors.instructor_id'), primary_key=True)
+    db.Column('course_id', UUID(as_uuid=True), db.ForeignKey('courses.course_id'), primary_key=True),
+    db.Column('instructor_id', UUID(as_uuid=True), db.ForeignKey('instructors.instructor_id'), primary_key=True)
 )
 
 class Course(db.Model):
     __tablename__='courses'
-    course_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
-    category_id:Mapped[int]= mapped_column(ForeignKey("categories.category_id"), nullable=False)
+    course_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
+    category_id:Mapped[uuid4]= mapped_column(ForeignKey("categories.category_id"), nullable=False)
     course_name:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
     is_active:Mapped[str]= mapped_column(db.Boolean,nullable=False,default=True)

@@ -1,7 +1,10 @@
 from datetime import datetime
+import os
+from uuid import uuid4
 from flask import request
 from models import Category
 from flask_jwt_extended import current_user
+from werkzeug.utils import secure_filename
 # from helpers.utils import checkField 
 
 
@@ -19,13 +22,28 @@ def delete(id):
     return {"msg":"delete success"}
 
 def create():
-    data = request.get_json()
-    category_exist=Category.get_category_by_name(data.get('category_name'))
+    # data = request.get_json()
+    data = request.form
+    category_name=data.get('category_name').strip()
+    description= data.get('category_name')
+    image= request.files.get('image')
+
+    if category_name == None or category_name == '':
+        return {'msg':'category_name cannot empty'}
+
+    category_exist=Category.get_category_by_name(category_name)
     if category_exist != None:
         return {'msg':"category name already used"},400
-    category= Category(category_name=data.get('category_name'),
-                       description=data.get('description')
-                       )
+    category= Category(category_name=category_name)
+    if description != None:
+        category.description= description
+    if image != None:
+        filename= secure_filename(f"{uuid4().hex}.{image.filename.split('.')[-1]}")
+        path= os.path.join('public/uploaded_img/',filename)
+        print(path)
+        image.save(path)
+        category.image=filename
+
     category.save()
     return category.as_dict(),201
 def update(id):

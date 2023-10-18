@@ -1,4 +1,5 @@
-from sqlalchemy import ForeignKey,UniqueConstraint
+from uuid import uuid4
+from sqlalchemy import UUID, ForeignKey,UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 from datetime import datetime
 from . import db
@@ -6,11 +7,11 @@ from . import db
 class Enrollment(db.Model):
     __tablename__='enrollment'
 
-    enrollment_id:Mapped[int]= mapped_column(db.Integer,autoincrement=True,primary_key=True)
-    user_id:Mapped[int]= mapped_column(ForeignKey("users.user_id"),nullable=False)
-    course_id:Mapped[str] = mapped_column(ForeignKey("courses.course_id"),nullable=False)
+    enrollment_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
+    user_id:Mapped[uuid4]= mapped_column(ForeignKey("users.user_id"),nullable=False)
+    course_id:Mapped[uuid4] = mapped_column(ForeignKey("courses.course_id"),nullable=False)
     is_completed:Mapped[bool] = mapped_column(db.Boolean,nullable=False,default=False)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow,nullable=False)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
     enrollment_details= relationship('EnrollmentDetail',backref='enrollment',lazy=True) 

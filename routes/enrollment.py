@@ -6,7 +6,7 @@ from flask import request
 
 
 @blueprint.route('/enrollment',methods=['GET',"POST"])
-@blueprint.route('/enrollment/<int:id>',methods=["DELETE","PUT"])
+@blueprint.route('/enrollment/<uuid:id>',methods=["DELETE","PUT"])
 @member_required()
 def enrollment(id=None):
     method = request.method

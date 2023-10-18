@@ -1,13 +1,16 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from . import db
 from datetime import datetime
+from uuid import uuid4
+from sqlalchemy import UUID
 
 class Category(db.Model):
     __tablename__='categories'
-    category_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
+    category_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
     category_name:Mapped[str] = mapped_column(db.String(60), nullable=False,unique=True)
     description:Mapped[str] = mapped_column(db.Text, nullable=True)
-    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow(),nullable=False)
+    created_at:Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow,nullable=False)
+    image:Mapped[str] = mapped_column(db.String(225), nullable=True)
     updated_at:Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
     courses= db.relationship('Course',backref='category',lazy=True)

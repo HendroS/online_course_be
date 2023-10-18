@@ -5,7 +5,7 @@ from flask import request
 from controllers.auth.decorators import admin_required
 
 @blueprint.route('/category',methods=['GET'])
-@blueprint.route('/category/<int:id>',methods=['GET'])
+@blueprint.route('/category/<uuid:id>',methods=['GET'])
 def getCategory(id=None):
     if id==None:
         return categoryController.getAll()
@@ -13,7 +13,7 @@ def getCategory(id=None):
         return categoryController.get(id)
 
 @blueprint.route('/category',methods=['POST'])
-@blueprint.route('/category/<int:id>',methods=['DELETE','PUT'])
+@blueprint.route('/category/<uuid:id>',methods=['DELETE','PUT'])
 @admin_required()
 def category(id=None):
     method=request.method

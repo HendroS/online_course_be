@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from routes import blueprint
 from models import User,TokenBlocklist
-from extensions import db,jwt
+from extensions import db,jwt,flask_uuid
 
 load_dotenv()
 
@@ -17,8 +17,10 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = os.getenv('FLASK_JWT_SECRET_KEY')
     app.config["JWT_ALGORITHM"] = os.getenv('FLASK_JWT_ALGHORITHM')
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=6)
+    app.config["UPLOAD_FOLDER"] = "static/"
     db.init_app(app)
     jwt.init_app(app)
+    flask_uuid.init_app(app)
 
     with app.app_context():
         print('create db')

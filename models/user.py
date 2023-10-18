@@ -1,4 +1,5 @@
-from sqlalchemy import ForeignKey, text
+from uuid import uuid4
+from sqlalchemy import ForeignKey, text,UUID
 from . import db
 import bcrypt
 
@@ -6,12 +7,12 @@ from sqlalchemy.orm import Mapped, mapped_column,relationship
 
 class User(db.Model):
     __tablename__='users'
-    user_id:Mapped[int]= mapped_column(db.Integer, primary_key=True,autoincrement=True)
+    user_id:Mapped[uuid4]= mapped_column(UUID(as_uuid=True), primary_key=True,default=uuid4)
     username:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     email:Mapped[str] = mapped_column(db.String, nullable=False,unique=True)
     password:Mapped[str] = mapped_column(db.String(60), nullable=False)
-    role_id:Mapped[int] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default=2)
-    # image:Mapped[str] = mapped_column(db.String(225), nullable=True)
+    role_id:Mapped[uuid4] = mapped_column(ForeignKey("roles.role_id"), nullable=False,default = 'b5d5e46c-c821-4e01-9384-25f24c04e625')
+    image:Mapped[str] = mapped_column(db.String(225), nullable=True)
 
     enrolls= relationship("Enrollment",backref='user',lazy=True)
 
