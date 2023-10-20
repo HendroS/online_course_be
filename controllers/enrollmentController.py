@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import request
 from models import Course,User,Enrollment
 from flask_jwt_extended import current_user
-from helpers.utils import checkField 
+from helpers.utils import checkField , checkValidUUID
 
 
 
@@ -34,8 +34,9 @@ def create():
      
     course= Course.get_course_by_id(data.get('course_id'))
     if course is None:
-        return {'msg':'course_id is invalid'},400
-    
+        return {'msg':'course_id required'},400
+    if not checkValidUUID(data.get('course_id')):
+        return {'msg':'not valid course_id'},400
     #check prerequisites
     completed_enroll= set(filter(lambda enroll: enroll.is_completed==True , user.enrolls))
     completed_course_id=set([c.course_id for c in completed_enroll])
