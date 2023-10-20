@@ -1,6 +1,10 @@
+import os
+from uuid import uuid4
 from flask import abort, request
 from models import User,Role
 from flask_jwt_extended import current_user
+from werkzeug.utils import secure_filename
+from helpers.utils import checkValidUUID
 
 def getAll():
     users= User.query.all()
@@ -22,12 +26,15 @@ def get(id):
 def update(id):
     if current_user.user_id != id:
         return {'msg':'Cant update other account'},403
-    data=request.get_json()
+    # data=request.get_json()
+    data=request.form
     email = data.get("email",None)
     username = data.get("username",None)
     password = data.get("password", None)
     role_id= data.get("role_id", None)
-    # columns=[email,username,password,role_id]
+    image=request.files.get('image')
+
+
     user=User.get_user_by_id(id)
     if user is None:
         abort(404)
@@ -38,23 +45,38 @@ def update(id):
         if user_mail != None:
             return {'msg':'email already used'},400
         user.email = str(email).lower()
-    
-    if username != None and user.username != username:
+    # print(username)
+    if username != None and user.username != username.strip():
         user_username = User.get_user_by_username(username)
         if user_username != None:
             return {'msg':'username already used'},400
+        user.username = username.strip()
+        
     if password != None:
         user.set_password(password)
 
     if role_id != None:
         if current_user.role.role_name != 'admin':
             return {'msg':'only admin allowed to change role'},400
-        if not isinstance(role_id,int):
-            return {'msg':'invalid role_id'},400
+        
+        if not checkValidUUID(role_id):
+            return {'msg':'role_id not valid'},400
+
         role= Role.get_by_id(role_id)
         if role == None:
-            return {'msg':"role_id not valid"},400
+            return {'msg':"role_id not found"},400
         user.role_id = role_id
+
+    if image != None:
+        filename= secure_filename(f"{uuid4().hex}.{image.filename.split('.')[-1]}")
+        path= os.path.join('public/uploaded_img/profile',filename)
+        image.save(path)
+        old_image= user.image
+
+        user.image= filename
+        if old_image != None:
+            old_path = os.path.join('public/uploaded_img/profile',filename)
+            os.unlink(old_path)
     
     user.save()
 
