@@ -39,22 +39,37 @@ def create():
         category.description= description
     if image != None:
         filename= secure_filename(f"{uuid4().hex}.{image.filename.split('.')[-1]}")
-        path= os.path.join('public/uploaded_img/',filename)
-        print(path)
+        path= os.path.join('public/uploaded_img/category',filename)
         image.save(path)
         category.image=filename
 
     category.save()
     return category.as_dict(),201
 def update(id):
-    data = request.get_json()
+    # data = request.get_json()
+    data = request.form
+    category_name=data.get('category_name').strip()
+    description= data.get('category_name')
+    image= request.files.get('image')
     category = Category.query.filter_by(category_id=id).first_or_404()
-    if category.category_name != data.get('category_name'):
-        category_exist=Category.get_category_by_name(data.get('category_name'))
+    if category_name!= None and category_name != '' and category.category_name != category_name:
+        category_exist=Category.get_category_by_name(category_name)
         if category_exist != None:
             return {'msg':"category name already used"},400
-        category.category_name= data.get('category_name')
-    category.description = data.get('description')
+        category.category_name= category_name
+    if description != None and description != '':
+        category.description = description
+    
+    if image!= None:
+        old_image= category.image
+        filename= secure_filename(f"{uuid4().hex}.{image.filename.split('.')[-1]}")
+        path= os.path.join('public/uploaded_img/category',filename)
+        image.save(path)
+        category.image=filename
+        if old_image!=None:
+            old_path= os.path.join('public/uploaded_img/category',old_image)
+            os.unlink(old_path)
+            
     category.updated_at = datetime.utcnow()
     category.save()
     return category.as_dict(),200
