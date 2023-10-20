@@ -50,6 +50,11 @@ def create():
     category=Category.get_category_by_id(data.get('category_id'))
     if category == None:
         return {'msg': f'category_id {data.get("category_id")} is not found in database'},400
+    
+    name_exist= Course.get_course_by_name(data.get('course_name'))
+    if name_exist !=None:
+        return {'msg':'course_name already exist'},400
+    
     course = Course(category_id=data.get("category_id"),
                     course_name = data.get("course_name"))
     
@@ -59,7 +64,7 @@ def create():
         
         instructor=Instructor.get_instructor(data.get('instructor_ids'))
         if instructor == None:
-            return {'msg':f'invalid instructor_id {id}'},400
+            return {'msg':f'instructor_id {id} not found'},400
         course.instructors.append(instructor)
 
     elif isinstance(data.get('instructor_ids'),list):
@@ -71,7 +76,7 @@ def create():
             
             instructor=Instructor.get_instructor(id)
             if instructor == None:
-                return {'msg':f'invalid instructor_id {id}'},400
+                return {'msg':f'instructor_id {id} not found'},400
             course.instructors.append(instructor)
             
 
@@ -86,19 +91,20 @@ def create():
                 
                 pre_course= Course.get_course_by_id(id)
                 if pre_course == None:
-                    return {'msg':f'course id {id} not valid.'},400
+                    return {'msg':f'course id {id} not found.'},400
                 course.prerequisites.append(pre_course)
         else:
             if not checkValidUUID(data.get('prerequisites')):
                 return {'msg':'invalid prerequisites UUID'},400
             pre_course= Course.get_course_by_id(data.get('prerequisites'))
             if pre_course == None:
-                return {'msg':f'course id {data.get("prerequisites")} not valid.'},400
+                return {'msg':f'course id {data.get("prerequisites")} not found.'},400
             course.prerequisites.append(pre_course)
         
     course.save()
     result= course.as_dict()
     result['instructors']=[i.instructor_name for i in course.instructors]
+    result['prerequisites']=[p.course_name for p in course.prerequisites]
     return result,201
 
 def delete(id):
