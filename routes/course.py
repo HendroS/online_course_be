@@ -31,8 +31,13 @@ def top_enrollment():
     enrolls = courseController.getTopCourses()
     return enrolls
 
-@blueprint.route('/course/search',methods=["GET"])
-def searchCourse():
-    courses=courseController.searchCourse()
+@blueprint.route('/course/advancesearch',methods=["GET"])
+def advanceSearchCourse():
+    courses=courseController.advanceSearch()
     return courses
 
+
+@blueprint.route('/course/search',methods=["GET"])
+def searchCourse():
+    courses=courseController.search()
+    return courses

@@ -1,4 +1,5 @@
 from flask import abort, request
+from sqlalchemy import or_
 from models import Course,Category,Instructor
 from flask_jwt_extended import current_user
 from helpers.utils import checkField,checkValidUUID
@@ -187,8 +188,9 @@ def update(id):
     course.save()
     result= course.as_dict()
     result['instructors']=[i.instructor_name for i in course.instructors]
+    result['prerequisites']=[i.course_name for i in course.prerequisites]
     return {'msg':'update sucessfull',
-            'data':result
+            'course':result
             },200
 
 
@@ -207,7 +209,7 @@ def getTopCourses(numbers=5):
     return {'top':[dict(c) for c in enrolls]}
 
 
-def searchCourse():
+def advanceSearch():
     data=request.get_json()
 
     courses=Course.query
@@ -226,5 +228,16 @@ def searchCourse():
     
     courses=courses.filter_by(is_active=True).all()
 
+    return {'courses':[course.as_dict() for course in courses]}
+
+def search():
+    data=request.get_json()
+    keyword = data.get('keyword')
+    if keyword == None:
+        return {'msg':'please input keyword'},400
+    
+    courses = Course.query.filter(or_(Course.course_name.ilike(f"%{keyword}%"), 
+                                  Course.description.ilike(f"%{keyword}%"))).all()
+    
     return {'courses':[course.as_dict() for course in courses]}
 
