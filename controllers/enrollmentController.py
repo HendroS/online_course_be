@@ -12,7 +12,31 @@ def getAll():
 
 def get(id):
     enrollment= Enrollment.query.filter_by(enrollment_id=id).first_or_404()
-    return enrollment
+    result = enrollment.as_dict()
+    # print([e.is_completed for e in enrollment.enrollment_details])
+    detail= []
+    for c in enrollment.course.chapters:
+        x={'chapter':c.chapter_name}
+        found=False
+        for d in enrollment.enrollment_details:
+            if c.chapter_id == d.chapter_id:
+                x['status']= 'completed' if d.is_completed == True else 'uncompleted'
+                found=True
+                break
+        if found == False:
+            x['status']='not yet open'
+        detail.append(x)
+
+    chapter_detail={
+                    'finished':len(list(filter(lambda e: e.is_completed==True ,enrollment.enrollment_details))),
+                    'total_chapter':len(enrollment.course.chapters),
+                    'detail': detail
+                    }
+    result['chapters']=chapter_detail
+    result['username']= enrollment.user.username
+    result['course']=enrollment.course.course_name
+    # result['completed_chapter']=f"{len(enrollment.enrollment_details)} of {len(enrollment.course.chapters)}"
+    return result
 
 def delete(id):
     enrollment= Enrollment.query.filter_by(enrollment_id=id).first_or_404()
@@ -34,14 +58,13 @@ def create():
      
     course= Course.get_course_by_id(data.get('course_id'))
     if course is None:
-        return {'msg':'course_id required'},400
+        return {'msg':'course not found'},400
     if not checkValidUUID(data.get('course_id')):
         return {'msg':'not valid course_id'},400
     #check prerequisites
     completed_enroll= set(filter(lambda enroll: enroll.is_completed==True , user.enrolls))
     completed_course_id=set([c.course_id for c in completed_enroll])
     course_pre_id= set([c.course_id for c in course.prerequisites])
-   
     if course_pre_id.issubset(completed_course_id) == False:
         return {'message':'Prerequisites not fullfilled. Please take and complete course needed'},405
     
