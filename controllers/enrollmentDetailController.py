@@ -1,7 +1,7 @@
 from flask import abort, request
 from models import EnrollmentDetail,Enrollment,Chapter
 from flask_jwt_extended import current_user
-from helpers.utils import checkField
+from helpers.utils import checkField,checkValidUUID
 
 
 def getAll():
@@ -12,6 +12,7 @@ def get(enrollment_id):
     data =request.get_json()
     chapter_id= data.get('chapter_id',None)
     chapter= Chapter.get_chapter(chapter_id)
+   
     if chapter == None:
         return {'msg':'invalid chapter id'},400
 
@@ -30,16 +31,23 @@ def create():
     enrollment_id= data.get('enrollment_id',None)
     chapter_id= data.get('chapter_id',None)
 
+    if not checkValidUUID(enrollment_id):
+        return {'msg':'invalid enrollment_id'},400
+    
+    if not checkValidUUID(chapter_id):
+        return {'msg':'invalid chapter_id'},400
+
+
     enrollment= Enrollment.get(enrollment_id)
     if enrollment == None:
-        return {'msg':'invalid enrollment_id'},400
+        return {'msg':'enrollment_id not found'},400
     
     if current_user.user_id != enrollment.user_id:
         return {'msg':'The enrollment is not belong to you'},403
     
     chapter= Chapter.get_chapter(chapter_id)
     if chapter == None:
-        return {'msg':'invalid chapter_id'},400
+        return {'msg':'chapter_id not found'},400
     
     if enrollment.course_id != chapter.course_id:
         return {'msg':'the chapter have not same course with enrollment course'},400

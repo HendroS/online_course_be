@@ -16,7 +16,7 @@ class EnrollmentDetail(db.Model):
 
 
     def __repr__(self):
-        return f'<EnrollmentDetail {self.user_id} {self.chapter_id}>'
+        return f'<EnrollmentDetail {self.enrollment_id} {self.chapter_id}>'
     
     @classmethod
     def get_enrollment(cls,enroll_id):
